@@ -1,8 +1,8 @@
 {
     "options": {
       "paths": {
-        "root": "/home/moos-dawg/moos-dawg-2024/Websocket/map",
-        "mbtiles": "/home/moos-dawg/moos-dawg-2024/Websocket/map"
+        "root": "/home/moos-dawg/moos-dawg-2024/GUI/map",
+        "mbtiles": "/home/moos-dawg/moos-dawg-2024/GUI/map"
       }
     },
     "data": {
