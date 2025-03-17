@@ -1,0 +1,15 @@
+{
+    "options": {
+      "paths": {
+        "root": "/home/moos-dawg/moos-dawg-2024/Websocket/map",
+        "mbtiles": "/home/moos-dawg/moos-dawg-2024/Websocket/map"
+      }
+    },
+    "data": {
+      "ks_map": {
+        "mbtiles": "ks_map.mbtiles"
+      }
+    },
+    "format": "raster"
+  }
+  
