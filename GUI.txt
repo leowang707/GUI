@@ -1,0 +1,24 @@
+
+sudo apt-get update
+sudo apt-get install ros-noetic-web-video-server
+rospack find web_video_servers
+
+roslaunch rosbridge_server rosbridge_websocket.launch address:=0.0.0.0
+
+rosrun web_video_server web_video_server _port:=8080 image_transport:=compressed
+
+python3 -m http.server 8000
+
+http://192.168.0.108:8000/index.html
+
+for outline map server
+-----------------------------------------------------------------
+sudo apt update
+sudo apt install sqlite3 -y
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+npm install -g tileserver-gl-light
+node -v
+npm -v
+-----------------------------------------------------------------
+

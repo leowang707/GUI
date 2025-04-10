@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>RTSP 串流</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #fff;
+    }
+
+    h1, h2 {
+      color: #4caf50;
+      text-align: center;
+    }
+
+    .stream {
+      margin-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* 改善高度消失問題的響應式 iframe 包裝器 */
+    .video-wrapper {
+      width: 100%;
+      max-width: 1920px;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+    }
+
+    /* 依照比例設定高度 */
+    .aspect-4by1::before {
+      content: "";
+      display: block;
+      padding-top: 25%; /* 480 / 1920 = 0.25 */
+    }
+
+    .aspect-1by1::before {
+      content: "";
+      display: block;
+      padding-top: 100%;
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* Radar 並排設定 */
+    .radar-row {
+      display: flex;
+      justify-content: center;
+      gap: 2%;
+      width: 100%;
+      max-width: 1920px;
+      flex-wrap: wrap;
+    }
+
+    .radar-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 300px;
+    }
+
+    @media (max-width: 800px) {
+      .radar-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .radar-column {
+        width: 80%;
+        max-width: 400px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stream">
+    <h2>Camera streaming</h2>
+    <div class="video-wrapper aspect-4by1">
+      <iframe id="cameraStream" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <div class="stream">
+    <div class="radar-row">
+      <div class="radar-column">
+        <h2>Camera4</h2>
+        <div class="video-wrapper aspect-1by1">
+          <iframe id="radarStream1" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div class="radar-column">
+        <h2>Radar</h2>
+        <div class="video-wrapper aspect-1by1">
+          <iframe id="radarStream2" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MYIP = localStorage.getItem('my_ip') || '192.168.1.108';
+
+    document.getElementById('cameraStream').src = `http://${MYIP}:8889/mystream/`;
+    document.getElementById('radarStream1').src = `http://${MYIP}:8889/radar1/`;
+    document.getElementById('radarStream2').src = `http://${MYIP}:8889/radar2/`;
+
+    console.log("Camera 串流載入自：http://" + MYIP + ":8889/mystream/");
+    console.log("Radar1 串流載入自：http://" + MYIP + ":8889/radar1/");
+    console.log("Radar2 串流載入自：http://" + MYIP + ":8889/radar2/");
+  </script>
+</body>
+</html>

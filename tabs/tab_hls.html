@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>HLS 直播</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video-js.min.css" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      background-color: #000; /* 加入黑色背景避免空白邊 */
+    }
+      
+    .video-js {
+      width: 100% !important;
+      height: 100% !important;
+    }
+      
+    .vjs-tech {
+      object-fit: contain; /* 使用contain維持比例，或用cover填滿畫面 */
+    }  
+  </style>
+</head>
+
+<body>
+  <video id="videoPlayer" class="video-js vjs-default-skin" controls autoplay>
+    <source src="http://192.168.0.108:8001/hls/stream.m3u8" type="application/x-mpegURL">
+  </video>      
+
+  <!-- ROSLib.js -->
+  <script src="https://cdn.jsdelivr.net/npm/roslib@1.3.0/build/roslib.js"></script>
+
+  <!-- Video.js 的 JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/7.14.3/video.min.js"></script>
+
+  <script>
+    /**************************************************************
+     * IP/Port設定
+     **************************************************************/
+    const HLS_SERVER_IP    = '192.168.0.108';
+    const HLS_SERVER_PORT  = '8001';
+    const hlsStreamURL  = `http://${HLS_SERVER_IP}:${HLS_SERVER_PORT}/hls/stream.m3u8`;
+
+    /**************************************************************
+     * 10. 啟動 Video.js (HLS 播放器)
+     **************************************************************/
+    const videoSource = document.querySelector('#videoPlayer > source');
+    if (videoSource) {
+      videoSource.src = hlsStreamURL;
+    }
+    var hlsPlayer = videojs('videoPlayer', {
+      techOrder: ["html5"]
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+    "options": {
+      "paths": {
+        "root": "/home/moos-dawg/moos-dawg-2024/GUI/map",
+        "mbtiles": "/home/moos-dawg/moos-dawg-2024/GUI/map"
+      }
+    },
+    "data": {
+      "ks_map": {
+        "mbtiles": "ks_map_v2.mbtiles"
+      }
+    },
+    "format": "raster"
+  }
+  

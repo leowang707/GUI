@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>狀態顯示</title>
+  <style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        font-family: Arial, sans-serif;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+    /* Tab3: Vehicle Status */
+    table.status-table {
+      border-collapse: collapse;
+      margin: 0 auto;
+      max-width: 90%;
+    }
+    table.status-table, table.status-table th, table.status-table td {
+      border: 1px solid #444;
+      padding: 8px;
+      text-align: center;
+    }
+    table.status-table th[colspan='3'] {
+      background-color: #ddd;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+  <table class="status-table">
+    <tr>
+      <th colspan="3">Vehicle Status Monitor</th>
+    </tr>
+    <tr>
+      <th>Component</th>
+      <th>Port</th>
+      <th>Starboard</th>
+    </tr>
+    <tr>
+      <td>External Control State</td>
+      <td id="External Control State_Port">Unknown</td>
+      <td id="External Control State_Starboard">Unknown</td>
+    </tr>
+    <tr>
+      <td>Engine State</td>
+      <td id="Engine State_Port">Unknown</td>
+      <td id="Engine State_Starboard">Unknown</td>
+    </tr>
+    <tr>
+      <td>Gear State</td>
+      <td id="Current Gear_Port">Unknown</td>
+      <td id="Current Gear_Starboard">Unknown</td>
+    </tr>
+    <tr>
+      <td>Throttle Position</td>
+      <td id="Throttle Position_Port">Unknown</td>
+      <td id="Throttle Position_Starboard">Unknown</td>
+    </tr>
+    <tr>
+      <td>Steering Angle</td>
+      <td colspan="2" id="Steering Angle">0°</td>
+    </tr>
+    <tr>
+      <th colspan="3">Control Status Monitor</th>
+    </tr>
+    <tr>
+      <td>Vessel Mode Control</td>
+      <td colspan="2" id="Mode control">Unknown</td>
+    </tr>
+    <tr>
+      <td>Vessel Propulsion Control</td>
+      <td colspan="2" id="Propulsion control">Unknown</td>
+    </tr>
+    <tr>
+      <td>Gear</td>
+      <td id="Gear_Port">Unknown</td>
+      <td id="Gear_Starboard">Unknown</td>
+    </tr>
+    <tr>
+      <td>Vessel Throttle</td>
+      <td id="Throttle_Port">Unknown</td>
+      <td id="Throttle Position_Starboard">Unknown</td>
+    </tr>
+    <tr>
+      <td>Vessel Steering Angle</td>
+      <td colspan="2" id="Vessel Steering Angle">0°</td>
+    </tr>
+  </table>
+
+  <!-- ROSLib.js -->
+  <script src="https://cdn.jsdelivr.net/npm/roslib@1.3.0/build/roslib.js"></script>
+
+  <script>
+    /**************************************************************
+     * IP/Port設定
+     **************************************************************/
+    const MYIP = localStorage.getItem('my_ip');
+    console.log("這是來自主頁的 my_ip：", MYIP);
+    
+    const ROSBRIDGE_IP = MYIP;
+    const ROSBRIDGE_PORT = '8002';
+    const rosbridgeURL = `ws://${ROSBRIDGE_IP}:${ROSBRIDGE_PORT}`;
+
+    /**************************************************************
+     * ROS連線初始化
+     **************************************************************/
+    const ros = new ROSLIB.Ros({ url: rosbridgeURL });
+
+    ros.on('connection', () => {
+      console.log(`已連接至ROS websocket：${rosbridgeURL}`);
+    });
+    ros.on('error', (error) => {
+      console.log('ROS 連線錯誤：', error);
+    });
+    ros.on('close', () => {
+      console.log('ROS WebSocket 已關閉。');
+    });
+
+    /**************************************************************
+     * 8. 監看 CAN 訊息 (Vehicle Status Monitor)
+     **************************************************************/
+    const vehicleStatusTopic = new ROSLIB.Topic({
+      ros: ros,
+      name: '/can_rx',
+      messageType: 'std_msgs/String'
+    });
+    vehicleStatusTopic.subscribe((msg) => {
+      const data = msg.data;
+      if (data.includes('ID: 0xCFF4500')) {
+        const parts = data.split('Data:')[1].trim().split(' ');
+        if (parts.length < 8) return;
+
+        const b3 = parseInt(parts[3], 16);
+        const b4 = parseInt(parts[4], 16);
+        const b6 = parseInt(parts[6], 16);
+        const b7 = parseInt(parts[7], 16);
+
+        let driveLineInstance = (b3 & 0xF0) >> 4;
+        let externalControlState = decodeExternalControlState(b3 & 0x0F);
+        let engineState = decodeEngineState((b4 & 0x0C) >> 2);
+        let currentGear = decodeCurrentGear(b4 & 0x03);
+        let throttlePosition = `${b6}%`;
+        let steeringAngle = formatSteeringAngle(b7);
+
+        if (driveLineInstance === 0) {
+          document.getElementById('External Control State_Port').textContent = externalControlState;
+          document.getElementById('Engine State_Port').textContent = engineState;
+          document.getElementById('Current Gear_Port').textContent = currentGear;
+          document.getElementById('Throttle Position_Port').textContent = throttlePosition;
+        } else if (driveLineInstance === 1) {
+          document.getElementById('External Control State_Starboard').textContent = externalControlState;
+          document.getElementById('Engine State_Starboard').textContent = engineState;
+          document.getElementById('Current Gear_Starboard').textContent = currentGear;
+          document.getElementById('Throttle Position_Starboard').textContent = throttlePosition;
+        }
+        document.getElementById('Steering Angle').textContent = steeringAngle;
+      }
+    });
+    function decodeExternalControlState(st) {
+      const arr = ['Inactive', 'Active', 'Pending Driver Ack', 'Not Allowed', 'Unknown'];
+      return (st >= 0 && st < arr.length) ? arr[st] : 'Invalid';
+    }
+    function decodeEngineState(val) {
+      const arr = ['Stopped', 'Running', 'Cranking', 'Not Available'];
+      return (val >= 0 && val < arr.length) ? arr[val] : 'Invalid';
+    }
+    function decodeCurrentGear(val) {
+      switch (val) {
+        case 0: return 'Neutral';
+        case 1: return 'Forward';
+        case 2: return 'Reverse';
+        default: return 'Unknown';
+      }
+    }
+    function formatSteeringAngle(value) {
+      let steering_percent = (value - 125);
+      let steering_degrees = steering_percent / 4.167;
+      if (steering_degrees < 0) {
+        return `Port ${Math.abs(steering_degrees).toFixed(2)}°`;
+      } else if (steering_degrees > 0) {
+        return `Starboard ${steering_degrees.toFixed(2)}°`;
+      } else {
+        return 'Center 0.00°';
+      }
+    }
+  </script>
+</body>
+</html>
