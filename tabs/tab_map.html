@@ -1,123 +1,221 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>地圖與功能</title>
-
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    crossorigin=""
+  />
 
   <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        font-family: Arial, sans-serif;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
     }
     .map-wrapper {
-        position: relative;
-        width: 100%;
-        margin: 0 auto;
-        border: 2px solid black;
-        border-radius: 5px;
-        display: flex;
-        flex-direction: row;
-        flex: 1;
-        min-height: 0;
-        overflow: hidden;
+      position: relative;
+      width: 100%;
+      margin: 0 auto;
+      border: 2px solid black;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: row;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
     #map {
-        flex: 1;
-        min-height: 0;
+      flex: 1;
+      min-height: 0;
     }
     .map-controls {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        box-sizing: border-box;
-        align-items: center;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      background-color: #f9f9f9;
+      box-sizing: border-box;
+      align-items: center;
+      overflow-y: auto;
+      gap: 10px; /* 讓每個區塊/按鈕列之間有間隔 */
     }
-    /* 標記資訊表格 */
+    .btn-row {
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+    }
     #pinInfoContainer {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        width: 450px;
-        max-height: 250px;
-        background: rgba(255,255,255,0.9);
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        box-shadow: 0 0 5px rgba(0,0,0,0.3);
-        z-index: 1000;
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      width: 450px;
+      max-height: 250px;
+      background: rgba(255, 255, 255, 0.9);
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
     }
     #pinInfoTable {
-        width: 100%;
-        border-collapse: collapse;
+      width: 100%;
+      border-collapse: collapse;
     }
-    #pinInfoTable th, #pinInfoTable td {
-        border: 1px solid #ccc;
-        padding: 5px;
-        text-align: center;
-        font-size: 14px;
+    #pinInfoTable th,
+    #pinInfoTable td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+      font-size: 14px;
     }
     #pinInfoTable th {
-        background-color: #f0f0f0;
+      background-color: #f0f0f0;
     }
     #displayInfo {
-        width: 80%;
-        margin: 10px auto 0;
-        font-size: 16px;
-        font-weight: bold;
-        color: #444;
-        text-align: left;
+      width: 80%;
+      margin: 10px auto 0;
+      font-size: 16px;
+      font-weight: bold;
+      color: #444;
+      text-align: left;
     }
   </style>
 </head>
 
 <body>
-  <!-- 地圖及功能 -->
   <div class="map-wrapper">
     <div id="map"></div>
     <div class="map-controls">
-      <!-- Compass -->
+      <!-- 羅盤 -->
       <div id="compassContainer">
         <svg width="100" height="100" viewBox="0 0 64 64">
           <circle cx="32" cy="32" r="30" fill="white" stroke="black" stroke-width="2"></circle>
-          <text x="32" y="8" text-anchor="middle" alignment-baseline="middle" fill="black" font-size="8">N</text>
-          <text x="8"  y="32" text-anchor="middle" alignment-baseline="middle" fill="black" font-size="8">W</text>
-          <text x="32" y="56" text-anchor="middle" alignment-baseline="middle" fill="black" font-size="8">S</text>
-          <text x="56" y="32" text-anchor="middle" alignment-baseline="middle" fill="black" font-size="8">E</text>
+          <text
+            x="32"
+            y="8"
+            text-anchor="middle"
+            alignment-baseline="middle"
+            fill="black"
+            font-size="8"
+          >
+            N
+          </text>
+          <text
+            x="8"
+            y="32"
+            text-anchor="middle"
+            alignment-baseline="middle"
+            fill="black"
+            font-size="8"
+          >
+            W
+          </text>
+          <text
+            x="32"
+            y="56"
+            text-anchor="middle"
+            alignment-baseline="middle"
+            fill="black"
+            font-size="8"
+          >
+            S
+          </text>
+          <text
+            x="56"
+            y="32"
+            text-anchor="middle"
+            alignment-baseline="middle"
+            fill="black"
+            font-size="8"
+          >
+            E
+          </text>
           <g id="compassArrow">
             <polygon points="32,2 16,48 32,32 48,48" fill="red"></polygon>
           </g>
-          <text id="compassHeadingText" x="32" y="38" text-anchor="middle" alignment-baseline="middle" fill="black" font-size="14" font-weight="bold">
+          <text
+            id="compassHeadingText"
+            x="32"
+            y="38"
+            text-anchor="middle"
+            alignment-baseline="middle"
+            fill="black"
+            font-size="14"
+            font-weight="bold"
+          >
             0°
           </text>
         </svg>
       </div>
-      <button id="clearTrackBtn">清除軌跡</button>
-      <button id="confirmBtn">確認大頭針</button>
-      <button id="undoPinBtn">取消上一個大頭針</button>
-      <button id="clearPinsBtn">清除所有大頭針</button>
-      <button id="trackCurrentBtn">追蹤當前位置</button>
-      <button id="setHomeBtn">設為Home Position (current_gps=true)</button>
-      <button id="sendPoseBtn">Send Pose</button>
-      <button id="sendBuoyPoseBtn">Send Buoy Pose</button>
-      <button id="sendKsPoseBtn">Send KS Obstacle Pose</button>
-      <button id="refreshPinsBtn">同步大頭針(分享)</button>
-      <!-- 新增切換圖資來源的按鈕 -->
-      <button id="toggleMapSourceBtn">切換圖資來源</button>
-      <div id="mapSourceStatus" style="font-size: 14px; color: #444; margin-top: 5px;">目前圖資：本地圖資</div>
+
+      <!-- 第一排按鈕 -->
+      <div class="btn-row">
+        <button id="clearTrackBtn">清除軌跡</button>
+        <button id="confirmBtn">確認大頭針</button>
+      </div>
+
+      <!-- 第二排按鈕 -->
+      <div class="btn-row">
+        <button id="undoPinBtn">取消上一個大頭針</button>
+        <button id="clearPinsBtn">清除所有大頭針</button>
+      </div>
+
+      <!-- 第三排按鈕 -->
+      <div class="btn-row">
+        <button id="trackCurrentBtn">追蹤當前位置</button>
+        <button id="setHomeBtn">設為Home Position</button>
+      </div>
+
+      <!-- 第四排按鈕 -->
+      <div class="btn-row">
+        <button id="sendLatLngBtn">Send Lat/Lng</button>
+        <button id="sendBuoyLatLngBtn">Send Buoy Lat/Lng</button>
+      </div>
+
+      <!-- 第五排按鈕 -->
+      <div class="btn-row">
+        <button id="sendKsLatLngBtn">Send KS Obstacle Lat/Lng</button>
+        <button id="refreshPinsBtn">同步大頭針(分享)</button>
+      </div>
+
+      <!-- 第六排按鈕 -->
+      <div class="btn-row">
+        <button id="toggleMapSourceBtn">切換圖資來源</button>
+        <button id="goalPointsBtn">接收Goal座標</button>
+      </div>
+
+      <!-- 圖資狀態文字 -->
+      <div id="mapSourceStatus" style="font-size:14px; color:#444;">
+        目前圖資：本地圖資
+      </div>
+
+      <!-- Motive障礙物段落 -->
+      <hr style="width:80%; margin:10px 0;" />
+      <div style="font-weight:bold;">Motive障礙物</div>
+
+      <div class="btn-row" style="justify-content:center;">
+        <input type="text" id="motiveLatInput" placeholder="Lat" style="width:80px;">
+        <input type="text" id="motiveLngInput" placeholder="Lng" style="width:80px;">
+      </div>
+      <div class="btn-row">
+        <button id="addMotiveObstacleBtn">新增障礙物</button>
+        <button id="publishMotiveObstacleBtn">發佈障礙物</button>
+      </div>
+      <div class="btn-row">
+        <button id="clearMotiveObstacleBtn">清除障礙物</button>
+      </div>
     </div>
   </div>
-  <!-- 標記資訊表格 (移出 map-wrapper) -->
+
   <div id="pinInfoContainer">
     <table id="pinInfoTable">
       <thead>
@@ -125,146 +223,112 @@
           <th>編號</th>
           <th>緯度</th>
           <th>經度</th>
-          <th>本地座標</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- JS 動態產生 -->
-      </tbody>
+      <tbody></tbody>
     </table>
   </div>
   <div id="displayInfo"></div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- roslib -->
   <script src="https://cdn.jsdelivr.net/npm/roslib@1.3.0/build/roslib.js"></script>
 
   <script>
     /**************************************************************
-     * IP/Port設定
+     * 0. IP/Port設定
      **************************************************************/
     const MYIP = localStorage.getItem('my_ip');
     console.log("這是來自主頁的 my_ip：", MYIP);
 
     const ROSBRIDGE_IP = MYIP;
     const ROSBRIDGE_PORT = '8002';
-    const MAP_SERVER_IP    = MYIP;
-    const MAP_SERVER_PORT  = '5002';
+    const MAP_SERVER_IP = MYIP;
+    const MAP_SERVER_PORT = '5002';
     const rosbridgeURL = `ws://${ROSBRIDGE_IP}:${ROSBRIDGE_PORT}`;
-    const mapTileURL    = `http://${MAP_SERVER_IP}:${MAP_SERVER_PORT}/data/ks_map/{z}/{x}/{y}.png`;
-    const mapJSONURL    = `http://${MAP_SERVER_IP}:${MAP_SERVER_PORT}/data/ks_map.json`; 
-    
+    const mapTileURL = `http://${MAP_SERVER_IP}:${MAP_SERVER_PORT}/data/bd_map/{z}/{x}/{y}.png`;
+    const mapJSONURL = `http://${MAP_SERVER_IP}:${MAP_SERVER_PORT}/data/bd_map.json`;
+
     /**************************************************************
-     * ROS連線初始化
+     * 1. ROS連線初始化
      **************************************************************/
     const ros = new ROSLIB.Ros({ url: rosbridgeURL });
-
-    ros.on('connection', () => {
-      console.log(`已連接至ROS websocket：${rosbridgeURL}`);
-    });
-    ros.on('error', (error) => {
-      console.log('ROS 連線錯誤：', error);
-    });
-    ros.on('close', () => {
-      console.log('ROS WebSocket 已關閉。');
-    });
+    ros.on('connection', () => console.log(`已連接至ROS websocket：${rosbridgeURL}`));
+    ros.on('error', (error) => console.log('ROS 連線錯誤：', error));
+    ros.on('close', () => console.log('ROS WebSocket 已關閉。'));
 
     /**************************************************************
-     * 地圖初始化
-     **************************************************************/   
+     * 2. 地圖初始化
+     **************************************************************/
     let map = L.map('map').setView([0, 0], 5);
 
-    // 先定義本地圖資和線上圖資的 URL
-    const localMapTileURL = `http://${MAP_SERVER_IP}:${MAP_SERVER_PORT}/data/ks_map/{z}/{x}/{y}.png`;
+    const localMapTileURL = `http://${MAP_SERVER_IP}:${MAP_SERVER_PORT}/data/bd_map/{z}/{x}/{y}.png`;
     const onlineMapTileURL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-    // 我們以 tileLayer 來存當前使用的圖層
     let tileLayer = null;
     let isUsingLocalMap = true;
 
-    // 切換為本地圖資
     function useLocalMap() {
-      if (tileLayer) {
-        map.removeLayer(tileLayer);
-      }
+      if (tileLayer) map.removeLayer(tileLayer);
       tileLayer = L.tileLayer(localMapTileURL, {
         minZoom: 5,
         maxNativeZoom: 16,
         maxZoom: 18,
-        attribution: 'Local Map'
+        attribution: 'Local Map',
       }).addTo(map);
       document.getElementById('mapSourceStatus').textContent = '目前圖資：本地圖資';
       console.log('切換為本地圖資');
     }
 
-    // 切換為線上圖資
     function useOnlineMap() {
-      if (tileLayer) {
-        map.removeLayer(tileLayer);
-      }
+      if (tileLayer) map.removeLayer(tileLayer);
       tileLayer = L.tileLayer(onlineMapTileURL, {
         maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
+        attribution: '&copy; OpenStreetMap contributors',
       }).addTo(map);
       document.getElementById('mapSourceStatus').textContent = '目前圖資：線上圖資';
       console.log('切換為線上圖資');
     }
 
-    // 監聽按鈕事件：每次按下就切換
-    document.getElementById('toggleMapSourceBtn').addEventListener('click', () => {
-      isUsingLocalMap = !isUsingLocalMap;
-      if (isUsingLocalMap) {
-        useLocalMap();
-      } else {
-        useOnlineMap();
-      }
-    });
+    document
+      .getElementById('toggleMapSourceBtn')
+      .addEventListener('click', () => {
+        isUsingLocalMap = !isUsingLocalMap;
+        isUsingLocalMap ? useLocalMap() : useOnlineMap();
+      });
 
-    // 預設使用本地圖資
     useLocalMap();
-
     L.control.scale({ position: 'bottomleft', imperial: false }).addTo(map);
 
+    // 若有 bd_map.json 可用 => 將地圖移到預設範圍
     async function fetchKsMapBounds() {
       try {
         const resp = await fetch(mapJSONURL);
         const data = await resp.json();
         if (data.bounds) {
-          const [minLon, minLat, maxLon, maxLat] = data.bounds;
-          const centerLat = (minLat + maxLat) / 2;
-          const centerLon = (minLon + maxLon) / 2;
-          console.log('取得 ks_map 範圍:', data.bounds);
-          console.log(`計算中心: ${centerLat}, ${centerLon}`);
-          map.setView([centerLat, centerLon], 16);
-          gpsMarker.setLatLng([centerLat, centerLon]);
-        } else {
-          console.warn('ks_map.json 中沒有 bounds 資料，使用預設經緯度。');
+          const [minLng, minLat, maxLng, maxLat] = data.bounds;
+          const centerLat = 23.378876;
+          const centerLng = 120.137868;
+          console.log('取得 bd_map 範圍:', data.bounds);
+          map.setView([centerLat, centerLng], 16);
+          gpsMarker.setLatLng([centerLat, centerLng]);
         }
       } catch (error) {
-        console.error('無法取得 ks_map.json：', error);
+        console.error('無法取得 bd_map.json：', error);
       }
     }
 
     let gpsMarker = L.marker([0, 0], {
       icon: L.divIcon({
-        html: `
-          <div style="
-            width: 30px;
-            height: 30px;
-            transform-origin: 50% 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;">
-            <svg xmlns="http://www.w3.org/2000/svg"
-               viewBox="0 0 100 100" fill="blue"
-               width="30" height="30">
-              <polygon points="50,0 90,100 50,75 10,100" />
-           </svg>
-          </div>`,
+        html: `<div style="width:30px;height:30px;transform-origin:50% 50%;display:flex;align-items:center;justify-content:center;">
+                 <svg viewBox="0 0 100 100" fill="blue" width="30" height="30">
+                   <polygon points="50,0 90,100 50,75 10,100" />
+                 </svg></div>`,
         className: '',
         iconSize: [30, 30],
-        iconAnchor: [15, 15]
-      })
+        iconAnchor: [15, 15],
+      }),
     }).addTo(map);
 
     fetchKsMapBounds();
@@ -275,14 +339,11 @@
     let trackLine = L.polyline([], { color: 'red', weight: 3 }).addTo(map);
     let isTracking = false;
     let lastLat = null;
-    let lastLon = null;
-    let lastAlt = 0.0;
+    let lastLng = null;
 
-    /* ------------- Home Position 相關 ------------- */
+    // -- Home Position 相關 --
     let homePositionData = null;
     let homeMarker = null;
-
-    // ★ 新增「等待 Home 更新」的旗標 & 舊 Home 紀錄
     let waitingForHomeUpdate = false;
     let oldHome = null;
 
@@ -290,42 +351,36 @@
      * 3. 訂閱 GPS & Heading
      **************************************************************/
     const gpsTopic = new ROSLIB.Topic({
-      ros: ros,
+      ros,
       name: '/mavros/global_position/global',
-      messageType: 'sensor_msgs/NavSatFix'
+      messageType: 'sensor_msgs/NavSatFix',
     });
     gpsTopic.subscribe((msg) => {
       lastLat = msg.latitude;
-      lastLon = msg.longitude;
-      lastAlt = msg.altitude || 0.0;
+      lastLng = msg.longitude;
 
+      // 第一次訂閱到後，就移動地圖到該位置
       if (!initialCentered) {
-        map.setView([lastLat, lastLon], 15);
+        map.setView([lastLat, lastLng], 15);
         initialCentered = true;
       }
-      gpsMarker.setLatLng([lastLat, lastLon]);
+      gpsMarker.setLatLng([lastLat, lastLng]);
 
-      const markerEl = gpsMarker.getElement();
-      if (markerEl) {
-        const arrowDiv = markerEl.querySelector('div');
-        if (arrowDiv) {
-          arrowDiv.style.transform = `rotate(${heading}deg)`;
-        }
-      }
+      // 旋轉圖示
+      const arrowDiv = gpsMarker.getElement()?.querySelector('div');
+      if (arrowDiv) arrowDiv.style.transform = `rotate(${heading}deg)`;
 
-      trackCoordinates.push([lastLat, lastLon]);
+      // 記錄軌跡
+      trackCoordinates.push([lastLat, lastLng]);
       trackLine.setLatLngs(trackCoordinates);
-
-      if (isTracking) {
-        map.setView([lastLat, lastLon]);
-      }
+      if (isTracking) map.setView([lastLat, lastLng]);
       updateDisplay();
     });
 
     const headingTopic = new ROSLIB.Topic({
-      ros: ros,
+      ros,
       name: '/mavros/global_position/compass_hdg',
-      messageType: 'std_msgs/Float64'
+      messageType: 'std_msgs/Float64',
     });
     headingTopic.subscribe((msg) => {
       heading = msg.data;
@@ -333,76 +388,58 @@
     });
 
     function updateCompassHeading(hdg) {
-      const arrowGroup = document.getElementById('compassArrow');
-      arrowGroup.setAttribute('transform', `rotate(${hdg}, 32, 32)`);
-      const headingText = document.getElementById('compassHeadingText');
-      headingText.textContent = hdg.toFixed(1) + '°';
+      document
+        .getElementById('compassArrow')
+        .setAttribute('transform', `rotate(${hdg}, 32, 32)`);
+      document.getElementById('compassHeadingText').textContent =
+        hdg.toFixed(1) + '°';
     }
 
-    /* ---- 訂閱 /mavros/home_position/home ---- */
+    // 訂閱 HomePosition
     const homePositionTopic = new ROSLIB.Topic({
-      ros: ros,
+      ros,
       name: '/mavros/home_position/home',
-      messageType: 'mavros_msgs/HomePosition'
+      messageType: 'mavros_msgs/HomePosition',
     });
     homePositionTopic.subscribe((msg) => {
       const newHome = {
         latitude: msg.geo.latitude,
         longitude: msg.geo.longitude,
-        altitude: msg.geo.altitude
+        altitude: msg.geo.altitude,
       };
       homePositionData = newHome;
-      updateDisplay();  // 更新畫面顯示
+      updateDisplay();
 
-      // ★ 如果正在等待 home 更新 & 舊Home存在 => 檢查是否真的改變
       if (waitingForHomeUpdate && oldHome) {
-        const latChanged = Math.abs(newHome.latitude - oldHome.latitude) > 1e-7;
-        const lonChanged = Math.abs(newHome.longitude - oldHome.longitude) > 1e-7;
-        // 有任一差異 => 代表已更新
-        if (latChanged || lonChanged) {
+        // 檢查是否真的改了
+        const changed =
+          Math.abs(newHome.latitude - oldHome.latitude) > 1e-7 ||
+          Math.abs(newHome.longitude - oldHome.longitude) > 1e-7;
+        if (changed) {
           waitingForHomeUpdate = false;
-          console.log('Home Position 實際更新，執行後續動作...');
-          // 1) 更新大頭針
+          // 同步等更新
           updatePinDisplay();
-          // 2) 同步更新大頭針
-          syncPinnedPoses();
-          // 3) 發送 KS 障礙物位置
-          sendKsPoses();
-          // 4) 發送浮球位置
-          sendBuoyPoses();
+          syncPinnedLatLngs();
+          sendKsLatLngs();
+          sendBuoyLatLngs();
         }
       }
     });
 
     function updateHomeMarker() {
       if (!homePositionData) return;
-      const lat = homePositionData.latitude;
-      const lon = homePositionData.longitude;
+      const { latitude: lat, longitude: lng } = homePositionData;
       if (!homeMarker) {
-        homeMarker = L.marker([lat, lon], {
+        homeMarker = L.marker([lat, lng], {
           icon: L.divIcon({
-            html: `
-              <div style="
-                background: white;
-                border: 2px solid green;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                color: green;">
-                H
-              </div>
-            `,
+            html: `<div style="background:white;border:2px solid green;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:green;">H</div>`,
             iconSize: [20, 20],
             iconAnchor: [10, 10],
-            className: ''
-          })
+            className: '',
+          }),
         }).addTo(map);
       } else {
-        homeMarker.setLatLng([lat, lon]);
+        homeMarker.setLatLng([lat, lng]);
       }
     }
 
@@ -423,7 +460,7 @@
     let pinMarkers = [];
     let pinCounter = 1;
 
-    // 點擊地圖 => 暫時性大頭針
+    // 點擊地圖 => 顯示臨時的大頭針
     map.on('click', (e) => {
       if (tempMarker) {
         map.removeLayer(tempMarker);
@@ -433,28 +470,19 @@
         radius: 6,
         color: 'blue',
         fillColor: 'blue',
-        fillOpacity: 1
+        fillOpacity: 1,
       }).addTo(map);
     });
 
     function createPinIcon(label) {
       return L.divIcon({
-        html: `<div style="
-          background: white;
-          border: 2px solid black;
-          border-radius: 50%;
-          width: 20px;
-          height: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: bold;
-          font-size: 10px;">${label}</div>`,
+        html: `<div style="background:white;border:2px solid black;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:10px;">${label}</div>`,
         iconSize: [20, 20],
-        className: ''
+        className: '',
       });
     }
 
+    // 確認大頭針 => 轉為正式 Marker
     document.getElementById('confirmBtn').addEventListener('click', () => {
       if (!tempMarkerLatLng) {
         console.log('尚未點擊地圖，無法確認大頭針');
@@ -464,39 +492,40 @@
         map.removeLayer(tempMarker);
         tempMarker = null;
       }
-      const label = pinCounter;
-      pinCounter++;
+      const label = pinCounter++;
       const finalMarker = L.marker(tempMarkerLatLng, {
-        icon: createPinIcon(label)
+        icon: createPinIcon(label),
       }).addTo(map);
 
-      pinMarkers.push({ marker: finalMarker, latLng: tempMarkerLatLng, label });
+      pinMarkers.push({
+        marker: finalMarker,
+        latLng: tempMarkerLatLng,
+        label,
+      });
       tempMarkerLatLng = null;
+
       updatePinDisplay();
-
-      // 同步大頭針
-      syncPinnedPoses();
+      syncPinnedLatLngs();
     });
 
+    // 取消上一個大頭針
     document.getElementById('undoPinBtn').addEventListener('click', () => {
-      if (pinMarkers.length > 0) {
-        const lastPin = pinMarkers.pop();
-        map.removeLayer(lastPin.marker);
-        pinCounter--;
-        updatePinDisplay();
-        syncPinnedPoses();
-      } else {
+      if (!pinMarkers.length) {
         console.log('沒有大頭針可取消');
+        return;
       }
+      const lastPin = pinMarkers.pop();
+      map.removeLayer(lastPin.marker);
+      pinCounter--;
+      updatePinDisplay();
+      syncPinnedLatLngs();
     });
 
+    // 清除所有大頭針
     document.getElementById('clearPinsBtn').addEventListener('click', () => {
       pinMarkers.forEach((pin) => map.removeLayer(pin.marker));
       pinMarkers = [];
       pinCounter = 1;
-
-      const tbody = document.querySelector('#pinInfoTable tbody');
-      tbody.innerHTML = '';
 
       if (tempMarker) {
         map.removeLayer(tempMarker);
@@ -504,76 +533,24 @@
       }
       tempMarkerLatLng = null;
 
-      console.log('所有大頭針已清除');
-      syncPinnedPoses();
+      // 如果有接收 GoalMarker，一併清除
+      goalMarkers.forEach(marker => map.removeLayer(marker));
+      goalMarkers = [];
+
+      document.querySelector('#pinInfoTable tbody').innerHTML = '';
+      console.log('所有大頭針與Goal座標標記已清除');
+      syncPinnedLatLngs();
     });
-
-    /**************************************************************
-     * (A) 經緯度 <-> 本地座標 轉換工具 + latLonToPose()
-     **************************************************************/
-    function latLonToLocal(lat, lon, refLat, refLon) {
-      const R = 6378137.0;
-      const dLat = (lat - refLat) * (Math.PI / 180);
-      const dLon = (lon - refLon) * (Math.PI / 180);
-      const avgLat = refLat * (Math.PI / 180);
-      const x = dLon * R * Math.cos(avgLat);
-      const y = dLat * R;
-      return [x, y];
-    }
-    function localToLatLon(x, y, refLat, refLon) {
-      const R = 6378137.0;
-      const dLat = y / R * (180 / Math.PI);
-      const dLon = x / (R * Math.cos(refLat * Math.PI / 180)) * (180 / Math.PI);
-      const lat = refLat + dLat;
-      const lon = refLon + dLon;
-      return [lat, lon];
-    }
-
-    function latLonToPose(lat, lon, refLat, refLon) {
-      const [x, y] = latLonToLocal(lat, lon, refLat, refLon);
-      return {
-        position: { x: x, y: y, z: 0 },
-        orientation: { x: 0, y: 0, z: 0, w: 1 }
-      };
-    }
 
     function updatePinDisplay() {
       const tbody = document.querySelector('#pinInfoTable tbody');
       tbody.innerHTML = '';
       if (!pinMarkers.length) return;
-
       pinMarkers.forEach((pin) => {
         const latStr = pin.latLng.lat.toFixed(6);
-        const lonStr = pin.latLng.lng.toFixed(6);
-
-        let localStr = '尚未取得 Home Position';
-        if (homePositionData) {
-          const [x, y] = latLonToLocal(
-            pin.latLng.lat,
-            pin.latLng.lng,
-            homePositionData.latitude,
-            homePositionData.longitude
-          );
-          localStr = `X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}`;
-        }
-
+        const lngStr = pin.latLng.lng.toFixed(6);
         const row = document.createElement('tr');
-        const cellLabel = document.createElement('td');
-        cellLabel.textContent = pin.label;
-        row.appendChild(cellLabel);
-
-        const cellLat = document.createElement('td');
-        cellLat.textContent = latStr;
-        row.appendChild(cellLat);
-
-        const cellLon = document.createElement('td');
-        cellLon.textContent = lonStr;
-        row.appendChild(cellLon);
-
-        const cellLocal = document.createElement('td');
-        cellLocal.textContent = localStr;
-        row.appendChild(cellLocal);
-
+        row.innerHTML = `<td>${pin.label}</td><td>${latStr}</td><td>${lngStr}</td>`;
         tbody.appendChild(row);
       });
     }
@@ -583,29 +560,23 @@
      **************************************************************/
     const trackCurrentBtn = document.getElementById('trackCurrentBtn');
     trackCurrentBtn.addEventListener('click', () => {
-      if (!isTracking) {
-        isTracking = true;
-        trackCurrentBtn.textContent = '停止追蹤';
-        const pos = gpsMarker.getLatLng();
-        if (pos) {
-          map.setView(pos, map.getZoom());
-        }
-      } else {
-        isTracking = false;
-        trackCurrentBtn.textContent = '追蹤當前位置';
+      isTracking = !isTracking;
+      trackCurrentBtn.textContent = isTracking ? '停止追蹤' : '追蹤當前位置';
+      if (isTracking && lastLat !== null && lastLng !== null) {
+        map.setView([lastLat, lastLng], map.getZoom());
       }
     });
 
     /**************************************************************
-     * 7. 設為Home Position (改為等待實際更新)
+     * 7. 設為Home Position
      **************************************************************/
     const setHomeService = new ROSLIB.Service({
-      ros: ros,
+      ros,
       name: '/mavros/cmd/set_home',
-      serviceType: 'mavros_msgs/CommandHome'
+      serviceType: 'mavros_msgs/CommandHome',
     });
     document.getElementById('setHomeBtn').addEventListener('click', () => {
-      if (lastLat === null || lastLon === null) {
+      if (lastLat === null || lastLng === null) {
         console.log('無法設定 Home，尚未取得 UAV 位置');
         return;
       }
@@ -613,20 +584,13 @@
         console.log('尚未取得 Home Position，無法比較是否更新');
         return;
       }
-
-      // 記錄現在的 home (oldHome)
-      oldHome = {
-        latitude: homePositionData.latitude,
-        longitude: homePositionData.longitude,
-        altitude: homePositionData.altitude
-      };
-
+      oldHome = { ...homePositionData };
       const request = new ROSLIB.ServiceRequest({
         current_gps: true,
         yaw: 0.0,
         latitude: 9999.0,
         longitude: -9999.0,
-        altitude: 9999.0
+        altitude: 9999.0,
       });
       setHomeService.callService(request, (result) => {
         console.log('set_home service result:', result);
@@ -644,16 +608,17 @@
      **************************************************************/
     function updateDisplay() {
       let text = '';
-      if (lastLat !== null && lastLon !== null) {
-        text += `<div>現在位置: Lat ${lastLat.toFixed(6)}, Lon ${lastLon.toFixed(6)}</div>`;
+      if (lastLat !== null && lastLng !== null) {
+        text += `<div>現在位置: Lat ${lastLat.toFixed(6)}, Lng ${lastLng.toFixed(6)}</div>`;
         text += `<div>現在航向 (compass_hdg): ${heading.toFixed(2)}°</div>`;
       } else {
         text += `<div>現在位置: 尚未取得</div>`;
       }
+
       if (homePositionData) {
         text += `<hr/><div>Home Position:</div>`;
         text += `<div>Lat: ${homePositionData.latitude.toFixed(6)}</div>`;
-        text += `<div>Lon: ${homePositionData.longitude.toFixed(6)}</div>`;
+        text += `<div>Lng: ${homePositionData.longitude.toFixed(6)}</div>`;
         updateHomeMarker();
       } else {
         text += `<hr/><div>Home Position: 尚未取得 (或尚未設定)</div>`;
@@ -662,225 +627,393 @@
     }
 
     /**************************************************************
-     * (B) 發送 大頭針 PoseArray (/pinned_pose_array)
+     * (B) 發送 大頭針 LatLng PoseArray (/pinned_lat_lng)
      **************************************************************/
-    const pinnedPosePublisher = new ROSLIB.Topic({
-      ros: ros,
-      name: '/pinned_pose_array',
-      messageType: 'geometry_msgs/PoseArray'
+    const pinnedLatLngPublisher = new ROSLIB.Topic({
+      ros,
+      name: '/pinned_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
     });
-    function sendPinnedPoses() {
-      if (!homePositionData) {
-        console.warn('尚未取得 Home Position，無法將大頭針轉成本地座標');
-        return;
-      }
-      const poses = pinMarkers.map(pin =>
-        latLonToPose(pin.latLng.lat, pin.latLng.lng,
-                     homePositionData.latitude, homePositionData.longitude)
-      );
+    function sendPinnedLatLngs() {
+      const poses = pinMarkers.map((pin) => ({
+        position: { x: pin.latLng.lat, y: pin.latLng.lng, z: 0 },
+        orientation: { x: 0, y: 0, z: 0, w: 1 },
+      }));
       const poseArrayMsg = new ROSLIB.Message({
         header: { stamp: { secs: 0, nsecs: 0 }, frame_id: 'map' },
-        poses: poses
+        poses,
       });
-      pinnedPosePublisher.publish(poseArrayMsg);
-      console.log(`已發送 pinned PoseArray，共 ${poses.length} 筆。`);
+      pinnedLatLngPublisher.publish(poseArrayMsg);
+      console.log(`已發送 pinned LatLng PoseArray，共 ${poses.length} 筆。`);
     }
-    document.getElementById('sendPoseBtn').addEventListener('click', sendPinnedPoses);
+    document
+      .getElementById('sendLatLngBtn')
+      .addEventListener('click', sendPinnedLatLngs);
 
     /**************************************************************
      * (C) 浮球 (Buoys)
      **************************************************************/
     const buoyCoordinates = [
-      {'id': '#21浮筒(現況)', 'lat': 22.61631009, 'lon': 120.27542464},
-      {'id': '#22浮筒(現況)', 'lat': 22.61581817, 'lon': 120.27734297},
-      {'id': '#23浮筒(現況)', 'lat': 22.61529488, 'lon': 120.27925784},
-      {'id': '#24浮筒(現況)', 'lat': 22.61473066, 'lon': 120.28119616},
-      {'id': '#25浮筒(現況)', 'lat': 22.61405187, 'lon': 120.28318477},
-      {'id': '#31浮筒(現況)', 'lat': 22.60600482, 'lon': 120.29511523},
-      {'id': '#32浮筒(現況)', 'lat': 22.60452438, 'lon': 120.29553934},
-      {'id': '#33浮筒(現況)', 'lat': 22.60263522, 'lon': 120.29633581},
-      {'id': '#44浮筒(現況)', 'lat': 22.60385182, 'lon': 120.28197456},
-      {'id': '#45浮筒(現況)', 'lat': 22.60277349, 'lon': 120.28258668},
-      {'id': '#46浮筒(現況)', 'lat': 22.60142253, 'lon': 120.28358262},
-      {'id': '#49浮筒(現況)', 'lat': 22.59835488, 'lon': 120.28554552},
-      {'id': '#50浮筒(現況)', 'lat': 22.59705943, 'lon': 120.28621657},
-      {'id': '#51浮筒(現況)', 'lat': 22.5951468, 'lon': 120.28759599},
-      {'id': '#52浮筒(現況)', 'lat': 22.59378882, 'lon': 120.28860646},
-      {'id': '#53浮筒(現況)', 'lat': 22.59188161, 'lon': 120.28976648},
-      {'id': '#54浮筒(現況)', 'lat': 22.5892918, 'lon': 120.2914065},
-      {'id': '#61浮筒(現況)', 'lat': 22.57752632, 'lon': 120.30076661},
-      {'id': '#62浮筒(現況)', 'lat': 22.57486721, 'lon': 120.30290526},
-      {'id': '#浮筒(假)', 'lat': 22.506650, 'lon': 120.319970},
-      {'id': '#浮筒(假)', 'lat': 22.504311, 'lon': 120.320721	}
-      //{'id': '#浮筒(假)', 'lat': 22.609474, 'lon': 120.290903}
+    /***
+      { id: '#21浮筒(現況)', lat: 22.61631009, lng: 120.27542464 },
+      { id: '#22浮筒(現況)', lat: 22.61581817, lng: 120.27734297 },
+      { id: '#23浮筒(現況)', lat: 22.61529488, lng: 120.27925784 },
+      { id: '#24浮筒(現況)', lat: 22.61473066, lng: 120.28119616 },
+      { id: '#25浮筒(現況)', lat: 22.61405187, lng: 120.28318477 },
+      { id: '#31浮筒(現況)', lat: 22.60600482, lng: 120.29511523 },
+      { id: '#32浮筒(現況)', lat: 22.60452438, lng: 120.29553934 },
+      { id: '#33浮筒(現況)', lat: 22.60263522, lng: 120.29633581 },
+      { id: '#44浮筒(現況)', lat: 22.60385182, lng: 120.28197456 },
+      { id: '#45浮筒(現況)', lat: 22.60277349, lng: 120.28258668 },
+      { id: '#46浮筒(現況)', lat: 22.60142253, lng: 120.28358262 },
+      { id: '#49浮筒(現況)', lat: 22.59835488, lng: 120.28554552 },
+      { id: '#50浮筒(現況)', lat: 22.59705943, lng: 120.28621657 },
+      { id: '#51浮筒(現況)', lat: 22.5951468, lng: 120.28759599 },
+      { id: '#52浮筒(現況)', lat: 22.59378882, lng: 120.28860646 },
+      { id: '#53浮筒(現況)', lat: 22.59188161, lng: 120.28976648 },
+      { id: '#54浮筒(現況)', lat: 22.5892918, lng: 120.2914065 },
+      { id: '#61浮筒(現況)', lat: 22.57752632, lng: 120.30076661 },
+      { id: '#62浮筒(現況)', lat: 22.57486721, lng: 120.30290526 }
+      ***/
     ];
+
     let buoyMarkers = [];
     function plotBuoys() {
-      buoyMarkers.forEach(m => map.removeLayer(m));
-      buoyMarkers = [];
-      buoyCoordinates.forEach(buoy => {
-        const circle = L.circle([buoy.lat, buoy.lon], {
+      buoyMarkers.forEach((m) => map.removeLayer(m));
+      buoyMarkers = buoyCoordinates.map((buoy) =>
+        L.circle([buoy.lat, buoy.lng], {
           radius: 20,
           color: 'red',
           fillColor: 'red',
-          fillOpacity: 1
-        }).addTo(map);
-        buoyMarkers.push(circle);
-      });
+          fillOpacity: 1,
+        }).addTo(map)
+      );
       console.log(`已在地圖上顯示 ${buoyCoordinates.length} 個浮球 (紅色圓，半徑20m)`);
     }
-    window.addEventListener('load', () => {
-      plotBuoys();
-    });
+    window.addEventListener('load', plotBuoys);
 
-    const buoyPosePublisher = new ROSLIB.Topic({
-      ros: ros,
-      name: '/buoy_pose_array',
-      messageType: 'geometry_msgs/PoseArray'
+    const buoyLatLngPublisher = new ROSLIB.Topic({
+      ros,
+      name: '/buoy_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
     });
-    function sendBuoyPoses() {
-      if (!homePositionData) {
-        console.warn('尚未取得 Home Position，無法將浮球轉成本地座標');
-        return;
-      }
-      const poses = buoyCoordinates.map(buoy =>
-        latLonToPose(buoy.lat, buoy.lon,
-                     homePositionData.latitude, homePositionData.longitude)
-      );
+    function sendBuoyLatLngs() {
+      const poses = buoyCoordinates.map((buoy) => ({
+        position: { x: buoy.lat, y: buoy.lng, z: 0 },
+        orientation: { x: 0, y: 0, z: 0, w: 1 },
+      }));
       const poseArrayMsg = new ROSLIB.Message({
         header: { stamp: { secs: 0, nsecs: 0 }, frame_id: 'map' },
-        poses: poses
+        poses,
       });
-      buoyPosePublisher.publish(poseArrayMsg);
-      console.log(`已發送 buoy PoseArray，共 ${poses.length} 筆。`);
+      buoyLatLngPublisher.publish(poseArrayMsg);
+      console.log(`已發送 buoy LatLng PoseArray，共 ${poses.length} 筆。`);
     }
-    document.getElementById('sendBuoyPoseBtn').addEventListener('click', sendBuoyPoses);
+    document
+      .getElementById('sendBuoyLatLngBtn')
+      .addEventListener('click', sendBuoyLatLngs);
 
     /**************************************************************
      * (D) 環境障礙物 (KS obstacles)
      **************************************************************/
-    const ksObstacles = [
-      { id: 'KS_enviroment', lat: 22.609980, lon: 120.281797 }
-    ];
-
-    const ksPosePublisher = new ROSLIB.Topic({
-      ros: ros,
-      name: '/ks_pose_array',  // 新增的 topic
-      messageType: 'geometry_msgs/PoseArray'
+    const ksObstacles = [{ id: 'KS_enviroment', lat: 22.60998, lng: 120.281797 }];
+    const ksLatLngPublisher = new ROSLIB.Topic({
+      ros,
+      name: '/ks_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
     });
-
-    function sendKsPoses() {
-      if (!homePositionData) {
-        console.warn('尚未取得 Home Position，無法將障礙物轉成本地座標');
-        return;
-      }
-      const poses = ksObstacles.map(obj =>
-        latLonToPose(
-          obj.lat,
-          obj.lon,
-          homePositionData.latitude,
-          homePositionData.longitude
-        )
-      );
+    function sendKsLatLngs() {
+      const poses = ksObstacles.map((obj) => ({
+        position: { x: obj.lat, y: obj.lng, z: 0 },
+        orientation: { x: 0, y: 0, z: 0, w: 1 },
+      }));
       const poseArrayMsg = new ROSLIB.Message({
         header: { stamp: { secs: 0, nsecs: 0 }, frame_id: 'map' },
-        poses: poses
+        poses,
       });
-      ksPosePublisher.publish(poseArrayMsg);
-      console.log(`已發送 ksPoseArray，共 ${poses.length} 筆。`);
+      ksLatLngPublisher.publish(poseArrayMsg);
+      console.log(`已發送 ks LatLng PoseArray，共 ${poses.length} 筆。`);
     }
+    document
+      .getElementById('sendKsLatLngBtn')
+      .addEventListener('click', sendKsLatLngs);
 
-    // 新增點擊事件，呼叫 sendKsPoses()
-    document.getElementById('sendKsPoseBtn').addEventListener('click', sendKsPoses);
-
-     /**************************************************************
-     * (E) 訂閱大頭針 PoseArray ( /pinned_pose_array )
+    /**************************************************************
+     * (E) 訂閱大頭針 PoseArray ( /pinned_lat_lng )
      **************************************************************/
-     const pinnedPoseSubscriber = new ROSLIB.Topic({
-      ros: ros,
-      name: '/pinned_pose_array',
-      messageType: 'geometry_msgs/PoseArray'
+    const pinnedLatLngSubscriber = new ROSLIB.Topic({
+      ros,
+      name: '/pinned_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
     });
-    pinnedPoseSubscriber.subscribe((msg) => {
-      if (!homePositionData) {
-        console.warn('尚未取得 Home Position，無法更新大頭針');
-        return;
-      }
+    pinnedLatLngSubscriber.subscribe((msg) => {
       pinMarkers.forEach((pin) => map.removeLayer(pin.marker));
       pinMarkers = [];
       pinCounter = 1;
-
       msg.poses.forEach((pose) => {
-        const { x, y } = pose.position;
-        // 由本地座標轉回經緯度
-        const [lat, lon] = localToLatLon(x, y, homePositionData.latitude, homePositionData.longitude);
-        const marker = L.marker([lat, lon], {
-          icon: createPinIcon(pinCounter)
+        const lat = pose.position.x;
+        const lng = pose.position.y;
+        const marker = L.marker([lat, lng], {
+          icon: createPinIcon(pinCounter),
         }).addTo(map);
-        pinMarkers.push({ marker: marker, latLng: L.latLng(lat, lon), label: pinCounter });
-        pinCounter++;
+        pinMarkers.push({
+          marker,
+          latLng: L.latLng(lat, lng),
+          label: pinCounter++,
+        });
       });
       updatePinDisplay();
     });
 
     /**************************************************************
-     * (F) 同步大頭針 - ( /sync_pinned_pose_array )
+     * (F) 同步大頭針 - ( /sync_pinned_lat_lng )
      **************************************************************/
-    const syncPinnedPosePublisher = new ROSLIB.Topic({
-      ros: ros,
-      name: '/sync_pinned_pose_array',
-      messageType: 'geometry_msgs/PoseArray'
+    const syncPinnedLatLngPublisher = new ROSLIB.Topic({
+      ros,
+      name: '/sync_pinned_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
     });
-    const syncPinnedPoseSubscriber = new ROSLIB.Topic({
-      ros: ros,
-      name: '/sync_pinned_pose_array',
-      messageType: 'geometry_msgs/PoseArray'
+    const syncPinnedLatLngSubscriber = new ROSLIB.Topic({
+      ros,
+      name: '/sync_pinned_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
     });
-    syncPinnedPoseSubscriber.subscribe((msg) => {
-      if (!homePositionData) {
-        console.warn('尚未取得 Home Position，無法更新同步大頭針');
-        return;
-      }
+    syncPinnedLatLngSubscriber.subscribe((msg) => {
       console.log('收到同步大頭針資料');
       pinMarkers.forEach((pin) => map.removeLayer(pin.marker));
       pinMarkers = [];
       pinCounter = 1;
-
       msg.poses.forEach((pose) => {
-        const { x, y } = pose.position;
-        const [lat, lon] = localToLatLon(x, y, homePositionData.latitude, homePositionData.longitude);
-        const marker = L.marker([lat, lon], {
-          icon: createPinIcon(pinCounter)
+        const lat = pose.position.x;
+        const lng = pose.position.y;
+        const marker = L.marker([lat, lng], {
+          icon: createPinIcon(pinCounter),
         }).addTo(map);
-        pinMarkers.push({ marker: marker, latLng: L.latLng(lat, lon), label: pinCounter });
-        pinCounter++;
+        pinMarkers.push({
+          marker,
+          latLng: L.latLng(lat, lng),
+          label: pinCounter++,
+        });
       });
       updatePinDisplay();
     });
 
-    function syncPinnedPoses() {
-      if (!homePositionData) {
-        console.warn('尚未取得 Home Position，無法同步大頭針');
-        return;
-      }
-      const poses = pinMarkers.map(pin =>
-        latLonToPose(pin.latLng.lat, pin.latLng.lng,
-                     homePositionData.latitude, homePositionData.longitude)
-      );
+    function syncPinnedLatLngs() {
+      const poses = pinMarkers.map((pin) => ({
+        position: { x: pin.latLng.lat, y: pin.latLng.lng, z: 0 },
+        orientation: { x: 0, y: 0, z: 0, w: 1 },
+      }));
       const poseArrayMsg = new ROSLIB.Message({
         header: { stamp: { secs: 0, nsecs: 0 }, frame_id: 'map' },
-        poses: poses
+        poses,
       });
-      syncPinnedPosePublisher.publish(poseArrayMsg);
+      syncPinnedLatLngPublisher.publish(poseArrayMsg);
       console.log(`已同步大頭針，共 ${poses.length} 筆。`);
     }
-
-    // 新增「同步顯示大頭針」按鈕行為
+    // 「同步大頭針(分享)」 => 大頭針 + Motive障礙物 都一起同步
     document.getElementById('refreshPinsBtn').addEventListener('click', () => {
-      console.log('按下 [同步顯示大頭針] 按鈕 => 重新發佈當前 pinMarkers');
-      syncPinnedPoses();
+      console.log('按下 [同步大頭針(分享)] => 大頭針 & 綠色障礙物一起同步');
+      syncPinnedLatLngs();
+      syncMotiveObstacles();
     });
 
+    /**************************************************************
+     * (G) Goal座標訂閱 + 顯示 ( /task/goal_point )
+     **************************************************************/
+    let receivedGoalPoses = [];
+    let goalMarkers = [];
+
+    const goalPointSubscriber = new ROSLIB.Topic({
+      ros,
+      name: '/task/goal_point',
+      messageType: 'geometry_msgs/PoseArray',
+    });
+    goalPointSubscriber.subscribe((msg) => {
+      // 每次收到 => 先清除舊 Marker
+      goalMarkers.forEach((m) => map.removeLayer(m));
+      goalMarkers = [];
+      receivedGoalPoses = [];
+
+      // 如果有資料 => goalPointsBtn 變綠
+      if (msg.poses.length > 0) {
+        receivedGoalPoses.push(...msg.poses);
+        document.getElementById('goalPointsBtn').style.backgroundColor = 'green';
+      } else {
+        document.getElementById('goalPointsBtn').style.backgroundColor = '';
+      }
+      console.log('/goal_point 收到 PoseArray:', msg.poses);
+    });
+
+    function createGoalIcon(label) {
+      return L.divIcon({
+        html: `<div style="background:white;border:2px solid green;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:10px;">${label}</div>`,
+        iconSize: [20, 20],
+        className: '',
+      });
+    }
+
+    // 「接收Goal座標」按鈕 => 顯示Goal
+    document
+      .getElementById('goalPointsBtn')
+      .addEventListener('click', () => {
+        if (receivedGoalPoses.length === 0) {
+          console.log('目前沒有 Goal 座標可標記');
+          return;
+        }
+        // 先清除舊
+        goalMarkers.forEach((m) => map.removeLayer(m));
+        goalMarkers = [];
+
+        // 逐一加到地圖
+        receivedGoalPoses.forEach((pose, i) => {
+          const lat = pose.position.x;
+          const lng = pose.position.y;
+          const marker = L.marker([lat, lng], {
+            icon: createGoalIcon(i + 1),
+          }).addTo(map);
+          goalMarkers.push(marker);
+        });
+        console.log(`在地圖上標示 ${receivedGoalPoses.length} 組Goal座標`);
+
+        // 清空 & 按鈕顏色還原
+        receivedGoalPoses = [];
+        document.getElementById('goalPointsBtn').style.backgroundColor = '';
+      });
+
+    /**************************************************************
+     * (★) Motive障礙物 => 綠色圓形 + 新增 / 清除 都要同步
+     **************************************************************/
+    let motiveObstacleArray = [];
+    let motiveObstacleMarkers = [];
+
+    // 一般發佈(給後端) => /motive_obstacle_lat_lng
+    const motiveObstacleLatLngPublisher = new ROSLIB.Topic({
+      ros,
+      name: '/motive_obstacle_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
+    });
+
+    // (★) 同步Topic => /sync_motive_obstacle_lat_lng
+    const syncMotiveObstacleLatLngPublisher = new ROSLIB.Topic({
+      ros,
+      name: '/sync_motive_obstacle_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
+    });
+    const syncMotiveObstacleLatLngSubscriber = new ROSLIB.Topic({
+      ros,
+      name: '/sync_motive_obstacle_lat_lng',
+      messageType: 'geometry_msgs/PoseArray',
+    });
+
+    // 收到他人同步 => 清空並重繪
+    syncMotiveObstacleLatLngSubscriber.subscribe((msg) => {
+      console.log('收到同步Motive障礙物資料 => 清除舊並重建');
+      // 1) 清除本地
+      motiveObstacleMarkers.forEach(circle => map.removeLayer(circle));
+      motiveObstacleMarkers = [];
+      motiveObstacleArray = [];
+
+      // 2) 逐一新增
+      msg.poses.forEach((pose) => {
+        const lat = pose.position.x;
+        const lng = pose.position.y;
+        motiveObstacleArray.push({ lat, lng });
+        const circle = L.circle([lat, lng], {
+          radius: 10,
+          color: 'green',
+          fillColor: 'green',
+          fillOpacity: 1,
+        }).addTo(map);
+        motiveObstacleMarkers.push(circle);
+      });
+      console.log(`更新後 => motiveObstacleArray.length = ${motiveObstacleArray.length}`);
+    });
+
+    // (★) 同步函式 => 發佈到 /sync_motive_obstacle_lat_lng
+    function syncMotiveObstacles() {
+      const poses = motiveObstacleArray.map((obj) => ({
+        position: { x: obj.lat, y: obj.lng, z: 0 },
+        orientation: { x: 0, y: 0, z: 0, w: 1 },
+      }));
+      const poseArrayMsg = new ROSLIB.Message({
+        header: { stamp: { secs: 0, nsecs: 0 }, frame_id: 'map' },
+        poses,
+      });
+      syncMotiveObstacleLatLngPublisher.publish(poseArrayMsg);
+      console.log(`已同步綠色障礙物 => count=${poses.length}`);
+    }
+
+    // 新增障礙物 => 立即同步
+    document
+      .getElementById('addMotiveObstacleBtn')
+      .addEventListener('click', () => {
+        const latInput = document.getElementById('motiveLatInput').value.trim();
+        const lngInput = document.getElementById('motiveLngInput').value.trim();
+
+        if (!latInput || !lngInput) {
+          alert('請輸入 Lat / Lng');
+          return;
+        }
+        const lat = parseFloat(latInput);
+        const lng = parseFloat(lngInput);
+        if (isNaN(lat) || isNaN(lng)) {
+          alert('經緯度格式錯誤');
+          return;
+        }
+
+        motiveObstacleArray.push({ lat, lng });
+        const circle = L.circle([lat, lng], {
+          radius: 10,
+          color: 'green',
+          fillColor: 'green',
+          fillOpacity: 1,
+        }).addTo(map);
+        motiveObstacleMarkers.push(circle);
+        console.log(`已新增綠色障礙物 => Lat=${lat}, Lng=${lng}`);
+
+        // (★) 立即同步 => 其它使用者立刻看到
+        syncMotiveObstacles();
+
+        // 清空輸入欄
+        document.getElementById('motiveLatInput').value = '';
+        document.getElementById('motiveLngInput').value = '';
+      });
+
+    // 發佈障礙物 => /motive_obstacle_lat_lng (給後端用)
+    document
+      .getElementById('publishMotiveObstacleBtn')
+      .addEventListener('click', () => {
+        if (motiveObstacleArray.length === 0) {
+          console.log('目前沒有任何 Motive障礙物');
+          return;
+        }
+        const poses = motiveObstacleArray.map((obj) => ({
+          position: { x: obj.lat, y: obj.lng, z: 0 },
+          orientation: { x: 0, y: 0, z: 0, w: 1 },
+        }));
+        const poseArrayMsg = new ROSLIB.Message({
+          header: { stamp: { secs: 0, nsecs: 0 }, frame_id: 'map' },
+          poses,
+        });
+        motiveObstacleLatLngPublisher.publish(poseArrayMsg);
+        console.log(
+          `已發佈綠色障礙物 => count=${poses.length} 到 /motive_obstacle_lat_lng`
+        );
+      });
+
+    // (★) 清除障礙物 => 也要同步(空PoseArray)
+    document
+      .getElementById('clearMotiveObstacleBtn')
+      .addEventListener('click', () => {
+        // 1) 清除本地
+        motiveObstacleArray = [];
+        motiveObstacleMarkers.forEach(circle => map.removeLayer(circle));
+        motiveObstacleMarkers = [];
+        console.log('已清除所有綠色 Motive障礙物');
+
+        // 2) (★) 同步 => 傳空陣列 => 其他使用者也跟著清除
+        syncMotiveObstacles();
+      });
   </script>
 </body>
 </html>

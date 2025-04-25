@@ -4,78 +4,17 @@
   <meta charset="UTF-8">
   <title>Vehicle Overview</title>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      box-sizing: border-box;
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-    }
-    header {
-      flex: 0 0 auto;
-      padding: 10px;
-      text-align: center;
-      background-color: #eee;
-    }
-    .status-bar {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .status-indicator {
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-weight: bold;
-      font-size: 14px;
-      color: #fff;
-      background-color: #999;
-      transition: background-color 0.3s;
-    }
-    .tab {
-      flex: 0 0 auto;
-      display: flex;
-      justify-content: center;
-      background-color: #ddd;
-    }
-    .tab button {
-      background-color: inherit;
-      border: none;
-      outline: none;
-      cursor: pointer;
-      padding: 14px 16px;
-      transition: 0.3s;
-      font-size: 17px;
-    }
-    .tab button:hover {
-      background-color: #bbb;
-    }
-    .tab button.active {
-      background-color: #fff;
-      font-weight: bold;
-      border-bottom: 2px solid #000;
-    }
-    /* 將所有 iframe 疊放在同一容器內，並利用 position 控制顯示/隱藏 */
-    #iframeContainer {
-      flex: 1 1 auto;
-      width: 100%;
-      position: relative;
-    }
-    #iframeContainer iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: none;
-    }
+    html,body{margin:0;padding:0;width:100%;height:100%;font-family:Arial,sans-serif;box-sizing:border-box}
+    body{display:flex;flex-direction:column}
+    header{flex:0 0 auto;padding:10px;text-align:center;background:#eee}
+    .status-bar{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:8px}
+    .status-indicator{padding:6px 12px;border-radius:4px;font-weight:bold;font-size:14px;color:#fff;background:#999;transition:.3s}
+    .tab{flex:0 0 auto;display:flex;justify-content:center;background:#ddd}
+    .tab button{background:inherit;border:none;cursor:pointer;padding:14px 16px;transition:.3s;font-size:17px}
+    .tab button:hover{background:#bbb}
+    .tab button.active{background:#fff;font-weight:bold;border-bottom:2px solid #000}
+    #iframeContainer{flex:1 1 auto;width:100%;position:relative}
+    #iframeContainer iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none;display:none}
   </style>
 </head>
 <body>
@@ -83,147 +22,85 @@
 <header>
   <h1>Vehicle Overview</h1>
   <div class="status-bar">
-    <div id="statusAuto" class="status-indicator">Autonomous Mode</div>
+    <div id="statusAuto"   class="status-indicator">Autonomous Mode</div>
     <div id="statusManual" class="status-indicator">Manual Mode</div>
     <div id="statusManned" class="status-indicator">Manned Mode</div>
   </div>
 </header>
 
+<!-- -------- Tabs -------- -->
 <div class="tab">
-  <button class="tablinks" onclick="openTab('tabs/tab_camera.html', this)">影像傳輸</button>
-  <button class="tablinks" onclick="openTab('tabs/tab_map_latlon.html', this)">地圖與功能</button>
-  <button class="tablinks" onclick="openTab('tabs/tab_status.html', this)">狀態</button>
-  <button class="tablinks" onclick="openTab('tabs/tab_rtsp.html', this)">直播</button>
+  <button class="tablinks" onclick="openTab('./tabs/tab_camera.html', this)">影像傳輸</button>
+  <button class="tablinks" onclick="openTab('./tabs/tab_map.html', this)">地圖與功能</button>
+  <button class="tablinks" onclick="openTab('./tabs/tab_status.html', this)">狀態</button>
+  <button class="tablinks" onclick="openTab('./tabs/tab_rtsp.html', this)">直播</button>
 </div>
 
+<!-- -------- Iframes -------- -->
 <div id="iframeContainer">
-  <iframe id="tab_camera" src="tabs/tab_camera.html"></iframe>
-  <iframe id="tab_map_latlon" src="tabs/tab_map_latlon.html"></iframe>
-  <iframe id="tab_status" src="tabs/tab_status.html"></iframe>
-  <iframe id="tab_rtsp" src="tabs/tab_rtsp.html"></iframe>
+  <iframe id="tab_camera"     src="./tabs/tab_camera.html"></iframe>
+  <iframe id="tab_map"        src="./tabs/tab_map.html"></iframe>
+  <iframe id="tab_status"     src="./tabs/tab_status.html"></iframe>
+  <iframe id="tab_rtsp"       src="./tabs/tab_rtsp.html"></iframe>
 </div>
 
-<!-- ROSLib.js -->
 <script src="https://cdn.jsdelivr.net/npm/roslib@1.3.0/build/roslib.js"></script>
-
 <script>
-  /**************************************************************
-   * IP/Port設定
-   **************************************************************/
-   const MYIP = '127.0.0.1'; //'192.168.1.108';
-  localStorage.setItem('my_ip', MYIP);
-  
-  const ROSBRIDGE_IP = MYIP;
-  const ROSBRIDGE_PORT = '8002';
-  const rosbridgeURL = `ws://${ROSBRIDGE_IP}:${ROSBRIDGE_PORT}`;
+/* ----------------------- 0. IP/Port ----------------------- */
+const MYIP     = '192.168.2.108';
+const CAMERAIP = '192.168.2.108'; //rtsp
+localStorage.setItem('my_ip',     MYIP);
+localStorage.setItem('camera_ip', CAMERAIP);
 
-  /**************************************************************
-   * ROS連線初始化
-   **************************************************************/
-  const ros = new ROSLIB.Ros({ url: rosbridgeURL });
+const rosbridgeURL = `ws://${MYIP}:8002`;
 
-  ros.on('connection', () => {
-    console.log(`已連接至ROS websocket：${rosbridgeURL}`);
+/* ----------------------- 1. ROS 連線 ----------------------- */
+const ros = new ROSLIB.Ros({ url: rosbridgeURL });
+ros.on('connection', () => console.log('已連接 ROSBridge'));
+ros.on('error',  err => console.error('ROS 連線錯誤:', err));
+ros.on('close',      () => console.warn('ROS WebSocket 關閉'));
+
+/* ----------------------- 2. 狀態指示 ----------------------- */
+const statusAuto   = document.getElementById('statusAuto');
+const statusManual = document.getElementById('statusManual');
+const statusManned = document.getElementById('statusManned');
+const setColor = (el, on) => el.style.backgroundColor = on ? '#4caf50' : '#999';
+
+new ROSLIB.Topic({ros,name:'/js_auto_mode',  messageType:'std_msgs/Bool'})
+  .subscribe(msg => setColor(statusAuto,   msg.data));
+new ROSLIB.Topic({ros,name:'/js_manual_mode',messageType:'std_msgs/Bool'})
+  .subscribe(msg => setColor(statusManual, msg.data));
+new ROSLIB.Topic({ros,name:'/js_manned_mode',messageType:'std_msgs/Bool'})
+  .subscribe(msg => setColor(statusManned, msg.data));
+
+/* ----------------------- 3. Tab 切換 ----------------------- */
+const tabMap = {
+  './tabs/tab_camera.html'    : 'tab_camera',
+  './tabs/tab_map.html'       : 'tab_map',
+  './tabs/tab_status.html'    : 'tab_status',
+  './tabs/tab_rtsp.html'      : 'tab_rtsp'
+};
+
+function openTab(page, btn){
+  /* 按鈕樣式 */
+  document.querySelectorAll('.tab button')
+    .forEach(b => b.classList.toggle('active', b === btn));
+  /* iframe 顯示 */
+  Object.values(tabMap).forEach(id=>{
+    document.getElementById(id).style.display = (tabMap[page]===id)?'block':'none';
   });
-  ros.on('error', (error) => {
-    console.log('ROS 連線錯誤：', error);
-  });
-  ros.on('close', () => {
-    console.log('ROS WebSocket 已關閉。');
-  });
+  /* 記錄目前頁 */
+  localStorage.setItem('activeTab', page);
+}
 
-  /**************************************************************
-   * 狀態指示燈 (Auto / Manual / Manned)
-   **************************************************************/
-  const statusAutoEl = document.getElementById('statusAuto');
-  const statusManualEl = document.getElementById('statusManual');
-  const statusMannedEl = document.getElementById('statusManned');
-
-  function updateStatusIndicator(element, isActive) {
-    element.style.backgroundColor = isActive ? '#4caf50' : '#999';
-  }
-
-  const autoModeTopic = new ROSLIB.Topic({
-    ros: ros,
-    name: '/js_auto_mode',
-    messageType: 'std_msgs/Bool'
-  });
-  autoModeTopic.subscribe((msg) => {
-    updateStatusIndicator(statusAutoEl, msg.data);
-  });
-
-  const manualModeTopic = new ROSLIB.Topic({
-    ros: ros,
-    name: '/js_manual_mode',
-    messageType: 'std_msgs/Bool'
-  });
-  manualModeTopic.subscribe((msg) => {
-    updateStatusIndicator(statusManualEl, msg.data);
-  });
-
-  const mannedModeTopic = new ROSLIB.Topic({
-    ros: ros,
-    name: '/js_manned_mode',
-    messageType: 'std_msgs/Bool'
-  });
-  mannedModeTopic.subscribe((msg) => {
-    updateStatusIndicator(statusMannedEl, msg.data);
-  });
-
-  /**************************************************************
-   * Tab 切換及狀態儲存 (多 iframe 方式)
-   **************************************************************/
-  // 將 tab 的頁面 URL 與對應 iframe 的 id 做映射
-  const tabMapping = {
-    'tabs/tab_camera.html': 'tab_camera',
-    'tabs/tab_map_latlon.html': 'tab_map_latlon',
-    'tabs/tab_status.html': 'tab_status',
-    'tabs/tab_rtsp.html': 'tab_rtsp'
-  };
-
-  function openTab(page, btn) {
-    // 移除所有按鈕的 active class
-    document.querySelectorAll('.tab button').forEach(b => b.classList.remove('active'));
-    // 為被點擊按鈕加入 active
-    btn.classList.add('active');
-    // 隱藏所有 iframe
-    Object.values(tabMapping).forEach(id => {
-      document.getElementById(id).style.display = 'none';
-    });
-    // 顯示對應的 iframe (狀態保留，不會重新載入)
-    const iframeId = tabMapping[page];
-    if (iframeId) {
-      document.getElementById(iframeId).style.display = 'block';
-    }
-    // 儲存目前選擇的 tab 頁面
-    localStorage.setItem('activeTab', page);
-  }
-
-  window.onload = function() {
-    // 檢查 localStorage 是否有儲存 tab 狀態
-    const savedTab = localStorage.getItem('activeTab');
-    const defaultTab = 'tabs/tab_camera.html';
-    const tabToLoad = savedTab ? savedTab : defaultTab;
-
-    // 根據儲存的頁面來設定 active 按鈕
-    document.querySelectorAll('.tab button').forEach(b => {
-      if (b.getAttribute('onclick').includes(tabToLoad)) {
-        b.classList.add('active');
-      } else {
-        b.classList.remove('active');
-      }
-    });
-    // 隱藏所有 iframe
-    Object.values(tabMapping).forEach(id => {
-      document.getElementById(id).style.display = 'none';
-    });
-    // 顯示對應的 iframe
-    const activeIframeId = tabMapping[tabToLoad];
-    if (activeIframeId) {
-      document.getElementById(activeIframeId).style.display = 'block';
-    }
-  };
+/* ----------------------- 4. 首次載入 ----------------------- */
+window.onload = ()=> {
+  const saved = localStorage.getItem('activeTab');
+  const page  = saved || './tabs/tab_camera.html';           // 預設影像傳輸
+  const btn   = [...document.querySelectorAll('.tab button')]
+                  .find(b => b.getAttribute('onclick').includes(page));
+  openTab(page, btn || document.querySelector('.tab button'));
+};
 </script>
-
 </body>
 </html>

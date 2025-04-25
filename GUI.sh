@@ -8,8 +8,8 @@ WEB_ROOT="/home/moos-dawg/moos-dawg-2024/GUI"
 cd "$WEB_ROOT" || exit 1  # 若資料夾不存在則結束腳本
 
 # 啟動 rosbridge_server (WebSocket server for ROS)
-echo "Starting ROSBridge WebSocket server..."
-roslaunch rosbridge_server rosbridge_websocket.launch address:=0.0.0.0 port:=8002&
+echo "Starting ROSBridge WebSocket server (rosrun)..."
+rosrun rosbridge_server rosbridge_websocket.py _address:=0.0.0.0 _port:=8002 __name:=rosbridge_ws_8002 &
 ROSBRIDGE_PID=$!
 echo "ROSBridge WebSocket server started with PID $ROSBRIDGE_PID"
 

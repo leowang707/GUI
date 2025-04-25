@@ -8,6 +8,9 @@
     "data": {
       "ks_map": {
         "mbtiles": "ks_map_v2.mbtiles"
+      },
+      "bd_map": {
+        "mbtiles": "bd_map.mbtiles"
       }
     },
     "format": "raster"
